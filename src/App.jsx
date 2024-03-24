@@ -5,6 +5,7 @@ import { GiGlassShot } from "react-icons/gi";
 // Create context for managing drinks data
 const DrinkContext = createContext();
 
+// Component for rendering individual drink details
 const Drink = ({ id, text, type, percentage, amount, onRemove, onEdit }) => (
   <div key={id} className=''>
     <h2 className='text-2xl'>{text}</h2>
@@ -20,6 +21,7 @@ const Drink = ({ id, text, type, percentage, amount, onRemove, onEdit }) => (
 
 // New component to display the list of drinks using useContext
 const DrinkList = ({ drinks, setDrinks, editDrink }) => {
+  // Function to remove a drink from the list
   const removeDrink = (idToRemove) => {
     setDrinks(prevDrinks => prevDrinks.filter(drink => drink.id !== idToRemove));
   };
@@ -35,6 +37,7 @@ const DrinkList = ({ drinks, setDrinks, editDrink }) => {
   );
 };
 
+// Main App component
 const App = () => {
   const [drinks, setDrinks] = useState([]); // State to store drinks
   const [inputValue, setInputValue] = useState(''); // State to manage input field value
@@ -45,8 +48,12 @@ const App = () => {
   const [editingDrinkId, setEditingDrinkId] = useState(null); // State to store the id of the drink being edited
   const ref = useRef(null); // Reference to the input element
 
+  // Function to handle adding a new drink
   const addDrinkHandler = useCallback(() => {
+    // Check if all input fields are filled
     if (inputValue.trim() === '' || percentValue.trim() === '' || amountValue.trim() === '') return;
+
+    // Create a new drink object
     const newDrink = {
       id: Math.floor(Math.random() * 1000),
       text: inputValue.trim(),
@@ -54,14 +61,20 @@ const App = () => {
       percentage: percentValue.trim(),
       amount: amountValue.trim()
     };
+
+     // Update drinks state with the new drink
     setDrinks(prevDrinks => [...prevDrinks, newDrink]);
+
+    // Clear input fields
     setInputValue('');
     setSelectedType('');
     setPercentValue('');
     setAmountValue('');
 
+    // Focus on the input field
     ref.current.focus();
 
+    // Show warning if the number of drinks reaches certain limit
     if (drinks.length === 9 || drinks.length === 19) {
       setShowWarning(true);
     }
@@ -76,6 +89,7 @@ const App = () => {
     setAmountValue(drinkToEdit.amount);
   };
 
+  // Function to save the edited drink
   const saveEdit = () => {
     const editedDrink = {
       id: editingDrinkId,
@@ -85,8 +99,10 @@ const App = () => {
       amount: amountValue.trim()
     };
 
+     // Update the drink in the drinks list
     setDrinks(prevDrinks => prevDrinks.map(drink => (drink.id === editingDrinkId ? editedDrink : drink)));
 
+    // Clear input fields and reset editing state
     setInputValue('');
     setSelectedType('');
     setPercentValue('');
@@ -94,11 +110,12 @@ const App = () => {
     setEditingDrinkId(null);
   };
 
+  // Effect to focus on input field when component mounts
   useEffect(() => {
     ref.current.focus();
   }, []);
 
-  // Function to calculate total amount of alcohol drank
+  // Memoized function to calculate total amount of alcohol drank
   const calculateTotalAlcohol = useMemo(() => {
     let totalAlcohol = 0;
     for (const drink of drinks) {
